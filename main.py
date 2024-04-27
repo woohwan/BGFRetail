@@ -144,6 +144,9 @@ rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chai
 #     history_messages_key="chat_history",
 # )
 
+# config = {"configurable": {"session_id": "any"}}
+# chat history 초기화
+# chat_history = []
 # chat history 초기화
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -155,14 +158,10 @@ for message in st.session_state.messages:
 
 # React to user input
 if prompt := st.chat_input("What is up"):
-    # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    # Display user message in chat message container
-    with st.chat_message("user"):
-        st.markdown(prompt)
-    
-    with st.chat_message("assistant"):
-
-        response = rag_chain.invoke({"input": prompt, "chat_history": st.session_state.messages})
-
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    # st.session_state.messages.append({"role": "user", "content": prompt})
+    st.chat_message("user").write(prompt)
+    # ai_msg_1 = chain_with_history.invoke({"input": prompt, "chat_history": msgs}, config)
+    ai_msg_1 = rag_chain.invoke({"input": prompt, "chat_history": st.session_state.messages})
+    st.chat_message("assistant").write(ai_msg_1["answer"])
+    # st.session_state.messages.extend([HumanMessage(content=prompt), AIMessage(ai_msg_1["answer"])])
+    st.session_state.messages.append({"role": "assistant", "content": ai_msg_1["answer"]})
