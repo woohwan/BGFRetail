@@ -1,2 +1,1 @@
-# BGFRetail
-demo
+RAG demo
