@@ -33,6 +33,8 @@ def load_vector_db():
 
 retriever = load_vector_db()
 
+#------------------------------------------------------------------------
+
 # ------------------------------------------------------------------------
 # Amazon Bedrock Settings
 bedrock_runtime = boto3.client(
@@ -115,8 +117,23 @@ for msg in history.messages:
     st.chat_message(msg.type).write(msg.content)
 
 
+# def get_response(chain, prompt, config):
+#     for  chunk in chain.stream({"input": prompt}, config):
+#         for key, val in chunk.items():
+#             if key == 'answer':
+#                 yield val
+
+def get_response(chain, prompt, config):
+    return (
+        val for chunk in chain.stream({"input": prompt}, config)
+        for key, val in chunk.items() if key == 'answer'
+    )
+
 if prompt := st.chat_input():
     st.chat_message("human").write(prompt)
     config = {"configurable": {"session_id": "any"}}
-    response = conversational_rag_chain.invoke({"input": prompt}, config)["answer"]
-    st.chat_message("ai").write(response)
+    # response = conversational_rag_chain.invoke({"input": prompt}, config)
+    # st.chat_message("ai").write(response)
+ 
+    # conversational_rag_chain.stream({"input": prompt}, config)
+    st.chat_message("ai").write_stream( get_response(conversational_rag_chain, prompt, config))
